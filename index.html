@@ -11,9 +11,17 @@
   --panel: #2a2a2a;
   --text: #ffffff;
   --accent: #00bfff;
+  --msg-bot: #333333;
 }
 
-/* Фикс для мобильных экранов */
+/* Светлая тема */
+body.light-theme {
+  --bg: #f4f4f4;
+  --panel: #ffffff;
+  --text: #111111;
+  --msg-bot: #e0e0e0;
+}
+
 html, body {
   height: 100%;
   margin: 0;
@@ -22,11 +30,12 @@ html, body {
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
-  height: 100dvh; /* Динамическая высота */
+  height: 100dvh; /* Динамическая высота для мобилок */
+  transition: background 0.3s, color 0.3s;
 }
 
 /* Sidebar */
@@ -41,24 +50,35 @@ body {
   transition: 0.3s;
   z-index: 1000;
   border-right: 2px solid var(--accent);
+  display: flex;
+  flex-direction: column;
 }
 
 #sidebar.active { left: 0; }
 
-#chatList { margin-top: 15px; overflow-y: auto; height: calc(100% - 150px); }
+#chatList { 
+  margin-top: 15px; 
+  flex: 1;
+  overflow-y: auto; 
+}
 
 .chatItem {
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 8px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
-.chatItem.active { border-left: 4px solid var(--accent); background: rgba(0, 191, 255, 0.1); }
+.chatItem.active { 
+  border-color: var(--accent); 
+  background: rgba(0, 191, 255, 0.1); 
+}
 
 /* Main Area */
 #main {
@@ -74,8 +94,8 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background: var(--bg);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: var(--panel);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
   z-index: 10;
 }
 
@@ -85,27 +105,38 @@ header {
   padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-bottom: 20px;
+  gap: 12px;
 }
 
 .message {
-  padding: 12px;
-  border-radius: 15px;
+  padding: 12px 16px;
+  border-radius: 18px;
   max-width: 85%;
-  line-height: 1.4;
+  line-height: 1.5;
   word-wrap: break-word;
+  font-size: 15px;
   animation: fade 0.2s ease-in;
 }
 
-.user { background: var(--accent); align-self: flex-end; color: white; border-bottom-right-radius: 2px; }
-.bot { background: var(--panel); align-self: flex-start; color: var(--text); border-bottom-left-radius: 2px; }
+.user { 
+  background: var(--accent); 
+  align-self: flex-end; 
+  color: white; 
+  border-bottom-right-radius: 2px; 
+}
+
+.bot { 
+  background: var(--msg-bot); 
+  align-self: flex-start; 
+  color: var(--text); 
+  border-bottom-left-radius: 2px; 
+}
 
 /* Fixed Input Area */
 #inputAreaWrapper {
   background: var(--panel);
-  padding: 10px 15px 25px 15px; /* Больше отступ снизу для мобил */
-  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 15px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0,0,0,0.1);
 }
 
 #inputArea {
@@ -118,10 +149,11 @@ input[type="text"] {
   flex: 1;
   padding: 12px;
   border-radius: 12px;
-  border: none;
-  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(0,0,0,0.05);
   color: var(--text);
-  font-size: 16px; /* Предотвращает зум на iOS */
+  font-size: 16px;
+  outline: none;
 }
 
 button {
@@ -132,62 +164,99 @@ button {
   color: white;
   font-weight: bold;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-#tokenCounter { font-size: 10px; color: var(--accent); margin-bottom: 5px; opacity: 0.7; }
+button:active { transform: scale(0.95); }
+
+/* Настройки темы в сайдбаре */
+.theme-settings {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--accent);
+}
 
 /* Modals */
 #keyModal, #helpModal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9); display: flex; justify-content: center;
+    background: rgba(0,0,0,0.8); display: flex; justify-content: center;
     align-items: center; z-index: 9999;
 }
 .modal-content { 
     background: var(--panel); padding: 25px; border-radius: 20px; 
-    text-align: center; width: 85%; max-width: 350px;
+    text-align: center; width: 85%; max-width: 350px; color: var(--text);
 }
 .hidden { display: none !important; }
+
+@keyframes fade { from {opacity:0; transform:translateY(5px);} to {opacity:1;} }
 </style>
 </head>
 
-<body>
+<body class="dark-theme">
 
 <div id="keyModal">
     <div class="modal-content">
-        <h3 style="color: var(--accent);">j4on ai</h3>
-        <input type="password" id="apiKeyInput" placeholder="Вставьте API Ключ" style="width: 100%; padding: 12px; border-radius: 10px; border:none; margin: 15px 0; box-sizing:border-box;">
+        <h3 style="color: var(--accent); margin-top:0;">Настройка API</h3>
+        <p style="font-size: 13px; opacity: 0.8;">Введите ваш ключ Gemini, чтобы начать общаться.</p>
+        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." style="width: 100%; padding: 12px; border-radius: 10px; border:1px solid #ddd; margin: 15px 0; box-sizing:border-box;">
         <div style="display: flex; gap: 10px;">
-            <button onclick="saveApiKey()" style="flex:1">Войти</button>
-            <button onclick="showHelp()" style="background:#444;">?</button>
+            <button onclick="saveApiKey()" style="flex:2">Сохранить</button>
+            <button onclick="showHelp()" style="flex:1; background:#666;">?</button>
         </div>
     </div>
 </div>
 
 <div id="helpModal" class="hidden">
     <div class="modal-content">
-        <h4>Как получить ключ:</h4>
-        <p style="font-size: 13px;">1. Зайдите на <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">AI Studio</a><br>2. Нажмите Create API Key<br>3. Скопируйте его сюда</p>
+        <h4>Где взять ключ?</h4>
+        <p style="font-size: 13px; text-align: left;">1. Зайдите на <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">Google AI Studio</a>.<br>2. Нажмите <b>Create API Key</b>.<br>3. Скопируйте его и вставьте сюда.</p>
         <button onclick="closeHelp()" style="width:100%">Понятно</button>
     </div>
 </div>
 
 <div id="sidebar">
   <button onclick="createChat()" style="width: 100%;">➕ Новый чат</button>
+  
   <div id="chatList"></div>
-  <button onclick="resetKey()" style="background:none; color:red; font-size:11px; margin-top:20px; width:100%;">Сбросить ключ</button>
+
+  <div class="theme-settings">
+    <label style="font-size: 12px;">Акцентный цвет:</label>
+    <select onchange="changeAccent(this.value)">
+      <option value="#00bfff">Голубой</option>
+      <option value="#ff5500">Оранжевый</option>
+      <option value="#55ff00">Зелёный</option>
+      <option value="#ff55ff">Розовый</option>
+    </select>
+    
+    <button onclick="toggleDarkLight()" style="width: 100%; margin-top: 10px; background: #666;">Сменить тему дня</button>
+    <button onclick="resetKey()" style="background:none; color:red; font-size:11px; margin-top:10px; width:100%; box-shadow:none;">Сбросить API ключ</button>
+  </div>
 </div>
 
 <div id="main">
   <header>
-    <div onclick="toggleMenu()" style="cursor:pointer">☰ <span id="chatTitle">j4on ai</span></div>
+    <div onclick="toggleMenu()" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+      <span style="font-size: 20px;">☰</span> 
+      <span id="chatTitle">j4on ai</span>
+    </div>
+    <div id="tokenCounter" style="font-size: 10px; opacity: 0.6;">Слов: 0</div>
   </header>
 
   <div id="chat"></div>
 
   <div id="inputAreaWrapper">
-    <div id="tokenCounter">Слов: 0 / 20000</div>
     <div id="inputArea">
-      <input type="text" id="userInput" placeholder="Напиши сообщение..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <input type="text" id="userInput" placeholder="Сообщение..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
   </div>
@@ -198,95 +267,153 @@ let API_KEY = localStorage.getItem("gemini_api_key") || "";
 let chats = JSON.parse(localStorage.getItem("j4on_chats") || "[]");
 let currentChat = null;
 let wordsUsed = parseInt(localStorage.getItem("wordsUsed") || "0");
-const WORD_LIMIT = 20000;
 
+// Проверка ключа
 if(API_KEY) document.getElementById("keyModal").classList.add("hidden");
 
-function saveApiKey() {
-    const key = document.getElementById("apiKeyInput").value.trim();
-    if(key) {
-        localStorage.setItem("gemini_api_key", key);
-        API_KEY = key;
-        document.getElementById("keyModal").classList.add("hidden");
-    }
+// --- ТЕМЫ ---
+function toggleDarkLight() {
+    document.body.classList.toggle("light-theme");
+    localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
 }
 
-function showHelp() { document.getElementById("helpModal").classList.remove("hidden"); }
-function closeHelp() { document.getElementById("helpModal").classList.add("hidden"); }
-function resetKey() { localStorage.removeItem("gemini_api_key"); location.reload(); }
+function changeAccent(color) {
+    document.documentElement.style.setProperty('--accent', color);
+    localStorage.setItem("accentColor", color);
+}
+
+// Загрузка сохраненной темы
+if(localStorage.getItem("theme") === "light") document.body.classList.add("light-theme");
+if(localStorage.getItem("accentColor")) changeAccent(localStorage.getItem("accentColor"));
+
+// --- ЧАТЫ ---
+function save() {
+    localStorage.setItem("j4on_chats", JSON.stringify(chats));
+    localStorage.setItem("wordsUsed", wordsUsed);
+}
+
 function toggleMenu() { document.getElementById("sidebar").classList.toggle("active"); }
 
 function renderChats() {
-  const list = document.getElementById("chatList");
-  list.innerHTML = "";
-  chats.forEach((chat, i) => {
-    const div = document.createElement("div");
-    div.className = "chatItem" + (i === currentChat ? " active" : "");
-    div.innerHTML = `<span onclick="openChat(${i}); toggleMenu()" style="flex:1">${chat.name}</span><span onclick="deleteChat(${i})">🗑</span>`;
-    list.appendChild(div);
-  });
+    const list = document.getElementById("chatList");
+    list.innerHTML = "";
+    chats.forEach((chat, i) => {
+        const div = document.createElement("div");
+        div.className = "chatItem" + (i === currentChat ? " active" : "");
+        div.innerHTML = `
+            <span onclick="openChat(${i}); toggleMenu()" style="flex:1; overflow:hidden; text-overflow:ellipsis;">${chat.name}</span>
+            <span onclick="deleteChat(${i})" style="padding: 5px; opacity:0.5;">🗑</span>
+        `;
+        list.appendChild(div);
+    });
 }
 
 function createChat() {
-  chats.unshift({ name: "Новый чат", history: [] });
-  currentChat = 0;
-  save(); renderChats(); openChat(0);
+    const newChat = { name: "Новый чат " + (chats.length + 1), history: [] };
+    chats.unshift(newChat);
+    currentChat = 0;
+    save();
+    renderChats();
+    openChat(0);
 }
 
 function openChat(i) {
-  currentChat = i;
-  document.getElementById("chat").innerHTML = "";
-  document.getElementById("chatTitle").innerText = chats[i].name;
-  chats[i].history.forEach(msg => addMessage(msg.parts[0].text, msg.role === "user" ? "user" : "bot"));
-  renderChats();
+    currentChat = i;
+    const chatDiv = document.getElementById("chat");
+    chatDiv.innerHTML = "";
+    document.getElementById("chatTitle").innerText = chats[i].name;
+    
+    chats[i].history.forEach(msg => {
+        addMessage(msg.parts[0].text, msg.role === "user" ? "user" : "bot");
+    });
+    renderChats();
+    chatDiv.scrollTop = chatDiv.scrollHeight;
 }
 
 function deleteChat(i) {
-  chats.splice(i,1); save(); location.reload();
+    event.stopPropagation();
+    if(!confirm("Удалить этот чат?")) return;
+    chats.splice(i, 1);
+    currentChat = chats.length > 0 ? 0 : null;
+    save();
+    if(currentChat !== null) openChat(0);
+    else {
+        document.getElementById("chat").innerHTML = "";
+        document.getElementById("chatTitle").innerText = "j4on ai";
+        renderChats();
+    }
 }
 
-function addMessage(text, sender){
-  const div = document.createElement("div");
-  div.className = "message " + sender;
-  div.innerText = text;
-  document.getElementById("chat").appendChild(div);
-  document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+// --- СООБЩЕНИЯ ---
+function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.className = "message " + sender;
+    div.innerText = text;
+    const chatBox = document.getElementById("chat");
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function save() { localStorage.setItem("j4on_chats", JSON.stringify(chats)); }
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
+    if(!text || !API_KEY) return;
 
-async function sendMessage(){
-  const input = document.getElementById("userInput");
-  const text = input.value.trim();
-  if(!text || currentChat === null) return;
+    if(currentChat === null) createChat();
 
-  addMessage(text, "user");
-  chats[currentChat].history.push({role: "user", parts: [{text: text}]});
-  input.value = "";
-
-  try {
-    // Исправленная ссылка: v1 вместо v1beta
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ contents: chats[currentChat].history })
-    });
-
-    const data = await res.json();
-    if(data.error) throw new Error(data.error.message);
-
-    const reply = data.candidates[0].content.parts[0].text;
-    addMessage(reply, "bot");
-    chats[currentChat].history.push({role: "model", parts: [{text: reply}]});
+    addMessage(text, "user");
+    chats[currentChat].history.push({ role: "user", parts: [{ text: text }] });
+    input.value = "";
     
-    if(chats[currentChat].name === "Новый чат") chats[currentChat].name = text.slice(0,20);
-    save(); renderChats();
-  } catch (err) {
-    addMessage("Ошибка: " + err.message, "bot");
-  }
+    wordsUsed += text.split(/\s+/).length;
+    document.getElementById("tokenCounter").innerText = "Слов: " + wordsUsed;
+
+    try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: chats[currentChat].history })
+        });
+
+        const data = await res.json();
+        if(data.error) throw new Error(data.error.message);
+
+        const reply = data.candidates[0].content.parts[0].text;
+        addMessage(reply, "bot");
+        chats[currentChat].history.push({ role: "model", parts: [{ text: reply }] });
+
+        // Авто-переименование чата по первому вопросу
+        if(chats[currentChat].name.startsWith("Новый чат")) {
+            chats[currentChat].name = text.slice(0, 20) + (text.length > 20 ? "..." : "");
+            document.getElementById("chatTitle").innerText = chats[currentChat].name;
+        }
+
+        wordsUsed += reply.split(/\s+/).length;
+        document.getElementById("tokenCounter").innerText = "Слов: " + wordsUsed;
+        save();
+        renderChats();
+    } catch (err) {
+        addMessage("Ошибка: " + err.message, "bot");
+    }
 }
 
-window.onload = () => { if(chats.length > 0) openChat(0); };
+// Ключи и помощь
+function saveApiKey() {
+    const val = document.getElementById("apiKeyInput").value.trim();
+    if(val) {
+        localStorage.setItem("gemini_api_key", val);
+        API_KEY = val;
+        document.getElementById("keyModal").classList.add("hidden");
+    }
+}
+function showHelp() { document.getElementById("helpModal").classList.remove("hidden"); }
+function closeHelp() { document.getElementById("helpModal").classList.add("hidden"); }
+function resetKey() { localStorage.removeItem("gemini_api_key"); location.reload(); }
+
+window.onload = () => {
+    if(chats.length > 0) openChat(0);
+    document.getElementById("tokenCounter").innerText = "Слов: " + wordsUsed;
+};
 </script>
 </body>
 </html>
